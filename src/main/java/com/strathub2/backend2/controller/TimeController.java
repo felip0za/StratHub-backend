@@ -33,5 +33,4 @@ public class TimeController {
     public void deletar(@PathVariable Long id) {
         timeService.deleteById(id);
     }
-
 }

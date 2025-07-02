@@ -1,6 +1,5 @@
 package com.strathub2.backend2.dto;
 
-import com.strathub2.backend2.entity.Time;
 import com.strathub2.backend2.entity.Titulo;
 
 public class TituloDTO {

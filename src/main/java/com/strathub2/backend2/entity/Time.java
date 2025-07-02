@@ -1,23 +1,27 @@
 package com.strathub2.backend2.entity;
 
 import jakarta.persistence.*;
+
 @Entity
 @Table(name = "times")
 public class Time {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id_time")
+    @Column(name = "id_time")
     private Integer id;
 
-    @Column(name="nm_time")
+    @Column(name = "nm_time")
     private String nome;
 
-    @Column(name="te_descricao")
+    @Column(name = "te_descricao")
     private String descricao;
 
-    public Time() {
+    @Lob
+    @Column(name = "te_imagem_base64", columnDefinition = "TEXT")
+    private String imagemBase64;
 
+    public Time() {
     }
 
     public Integer getId() {
@@ -44,5 +48,21 @@ public class Time {
         this.descricao = descricao;
     }
 
+    public String getImagemBase64() {
+        return imagemBase64;
+    }
 
+    public void setImagemBase64(String imagemBase64) {
+        this.imagemBase64 = imagemBase64;
+    }
+
+    @Override
+    public String toString() {
+        return "Time{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", descricao='" + descricao + '\'' +
+                ", imagemBase64='" + (imagemBase64 != null ? "[BASE64]" : "null") + '\'' +
+                '}';
+    }
 }

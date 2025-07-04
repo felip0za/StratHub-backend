@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TimeService {
@@ -20,7 +19,7 @@ public class TimeService {
     }
 
     @Transactional(readOnly = true)
-    public TimeDTO findById(Long id) {
+    public TimeDTO findById(Integer id) {
         Time time = timeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Time não encontrado com o ID: " + id));
         return new TimeDTO(time);
@@ -53,7 +52,7 @@ public class TimeService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         if (!timeRepository.existsById(id)) {
             throw new EntityNotFoundException("Time não encontrado com o ID: " + id);
         }
@@ -65,8 +64,7 @@ public class TimeService {
      */
     private void copyDtoToEntity(TimeDTO dto, Time entity) {
         entity.setNome(dto.getNome());
-        entity.setDescricao(dto.getDescricao()); // ✅ caso o campo exista no DTO e na entidade
+        entity.setDescricao(dto.getDescricao());
         entity.setImagemBase64(dto.getImagemBase64());
-        // Se houver mais campos, adicionar aqui
     }
 }

@@ -1,13 +1,17 @@
 package com.strathub2.backend2.dto;
 
+import com.strathub2.backend2.entity.Time;
 import com.strathub2.backend2.entity.Usuario;
 
 public class UsuarioDTO {
     private Integer id;
     private String email;
+    private String nome;
     private String senha;
     private String imagem_usuario;
-    private String nome;
+
+    private Integer timeId;       // ✅ Corrigido de Long para Integer
+    private String nomeTime;
 
     public UsuarioDTO() {
     }
@@ -17,16 +21,21 @@ public class UsuarioDTO {
             this.id = usuario.getId();
             this.email = usuario.getEmail();
             this.nome = usuario.getNome();
-            this.senha = usuario.getSenha(); // Inclua, se necessário no contexto do DTO
+            this.senha = usuario.getSenha();
+
             if (usuario.getImagem_usuario() != null && !usuario.getImagem_usuario().isEmpty()) {
-                // ✅ Adiciona o prefixo para o React conseguir exibir a imagem direto
                 this.imagem_usuario = "data:image/png;base64," + usuario.getImagem_usuario();
-            } else {
-                this.imagem_usuario = null;
+            }
+
+            Time time = usuario.getTime();
+            if (time != null) {
+                this.timeId = time.getId();      // ✅ Inteiro
+                this.nomeTime = time.getNome();
             }
         }
     }
 
+    // Getters e setters
 
     public Integer getId() {
         return id;
@@ -44,12 +53,12 @@ public class UsuarioDTO {
         this.email = email;
     }
 
-    public String getSenha() {
-        return senha;
+    public String getNome() {
+        return nome;
     }
 
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getImagem_usuario() {
@@ -60,11 +69,27 @@ public class UsuarioDTO {
         this.imagem_usuario = imagem_usuario;
     }
 
-    public String getNome() {
-        return nome;
+    public Integer getTimeId() {                      // ✅ Corrigido
+        return timeId;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setTimeId(Integer timeId) {           // ✅ Corrigido
+        this.timeId = timeId;
+    }
+
+    public String getNomeTime() {
+        return nomeTime;
+    }
+
+    public void setNomeTime(String nomeTime) {
+        this.nomeTime = nomeTime;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

@@ -20,7 +20,7 @@ public class TimeController {
     }
 
     @GetMapping("{id}")
-    public TimeDTO findById(@PathVariable Long id) {
+    public TimeDTO findById(@PathVariable Integer id) {
         return timeService.findById(id);
     }
 
@@ -30,7 +30,7 @@ public class TimeController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id) {
+    public void deletar(@PathVariable Integer id) {
         timeService.deleteById(id);
     }
 }

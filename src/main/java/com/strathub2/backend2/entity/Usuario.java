@@ -23,6 +23,10 @@ public class Usuario {
     @Column(name = "te_nome")
     private String nome;
 
+    @ManyToOne
+    @JoinColumn(name = "id_time") // chave estrangeira no banco
+    private Time time;
+
     public Usuario() {
     }
 
@@ -53,14 +57,13 @@ public class Usuario {
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
-    @Override
-    public String toString() {
-        return "Usuario{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", senha='" + senha + '\'' +
-                ", imagem_usuario='" + (imagem_usuario != null ? "[BASE64]" : "null") + '\'' +
-                ", nome='" + nome + '\'' +
-                '}';
+    public Time getTime() {
+        return time;
     }
+
+    public void setTime(Time time) {
+        this.time = time;
+    }
+
+
 }

@@ -2,33 +2,34 @@ package com.strathub2.backend2.controller;
 
 import com.strathub2.backend2.dto.TimeDTO;
 import com.strathub2.backend2.dto.UsuarioDTO;
+import com.strathub2.backend2.entity.Time;
 import com.strathub2.backend2.entity.Usuario;
-import com.strathub2.backend2.repository.UsuarioRepository;
+import com.strathub2.backend2.service.TimeService;
 import com.strathub2.backend2.service.UsuarioService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
 
     @Autowired
-    private UsuarioRepository repo;
-
-    @Autowired
     private UsuarioService service;
 
-    @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrar(@RequestBody Usuario usuario) {
-        try {
-            if (repo.findByEmail(usuario.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body("Email já cadastrado!");
-            }
+    @Autowired
+    private TimeService timeService; // Service para buscar o time
 
-            Usuario novoUsuario = repo.save(usuario);
-            return ResponseEntity.ok(novoUsuario);
+    @PostMapping("/cadastrar")
+    public ResponseEntity<?> cadastrar(@RequestBody UsuarioDTO usuarioDTO) {
+        try {
+            String resultado = service.cadastrar(usuarioDTO);
+            if (resultado.contains("já cadastrado")) {
+                return ResponseEntity.badRequest().body(resultado);
+            }
+            return ResponseEntity.ok(resultado);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Erro interno ao cadastrar: " + e.getMessage());
         }
@@ -36,10 +37,21 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Usuario usuario) {
-        return repo.findByEmail(usuario.getEmail())
-                .filter(u -> u.getSenha().equals(usuario.getSenha()))
-                .map(u -> ResponseEntity.ok("Login bem-sucedido!"))
-                .orElse(ResponseEntity.status(401).body("Email ou senha inválidos."));
+        try {
+            if (usuario.getEmail() == null || usuario.getSenha() == null) {
+                return ResponseEntity.badRequest().body("Email e senha são obrigatórios.");
+            }
+
+            String resultado = service.login(usuario.getEmail(), usuario.getSenha());
+
+            if (resultado.equals("Login bem-sucedido!")) {
+                return ResponseEntity.ok(resultado);
+            } else {
+                return ResponseEntity.status(401).body(resultado);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Erro interno ao fazer login: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
@@ -47,12 +59,21 @@ public class UsuarioController {
         try {
             UsuarioDTO usuario = service.findById(id);
             if (usuario == null) {
-                return ResponseEntity.badRequest().body("Usuário não encontrado");
+                return ResponseEntity.status(404).body("Usuário não encontrado");
             }
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body("Erro interno: " + e.getMessage());
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UsuarioDTO>> listarTodos() {
+        try {
+            List<UsuarioDTO> usuarios = service.findAll();
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -61,10 +82,36 @@ public class UsuarioController {
         try {
             UsuarioDTO atualizado = service.updateById(id, usuarioDTO);
             return ResponseEntity.ok(atualizado);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body("Usuário não encontrado com o ID: " + id);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro ao atualizar o usuário: " + e.getMessage());
+            return ResponseEntity.status(404).body("Usuário não encontrado com o ID: " + id);
+        }
+    }
+
+    // Endpoint para retornar o time do usuário
+    @GetMapping("/meu-time/{id}")
+    public ResponseEntity<?> obterMeuTime(@PathVariable Integer id) {
+        try {
+            // Busca o usuário pelo ID
+            UsuarioDTO usuario = service.findById(id);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            // Verifica se o usuário tem um time associado
+            if (usuario.getTime() == null) {
+                return ResponseEntity.status(404).body("Usuário sem time");
+            }
+
+            // Busca o time associado ao usuário
+            Time time = usuario.getTime();
+            TimeDTO timeDTO = new TimeDTO();
+            timeDTO.setNome(time.getNome());
+            timeDTO.setDescricao(time.getDescricao());
+            timeDTO.setImagemBase64(time.getImagemBase64());
+
+            return ResponseEntity.ok(timeDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao buscar o time: " + e.getMessage());
         }
     }
 }

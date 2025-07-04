@@ -1,6 +1,9 @@
 package com.strathub2.backend2.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "times")
@@ -21,9 +24,14 @@ public class Time {
     @Column(name = "te_imagem_base64", columnDefinition = "TEXT")
     private String imagemBase64;
 
+    @OneToMany(mappedBy = "time", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("time") // evita loop quando retornar usuarios → time → usuarios...
+    private List<Usuario> usuarios;
+
     public Time() {
     }
 
+    // Getters e Setters
     public Integer getId() {
         return id;
     }
@@ -54,6 +62,14 @@ public class Time {
 
     public void setImagemBase64(String imagemBase64) {
         this.imagemBase64 = imagemBase64;
+    }
+
+    public List<Usuario> getUsuarios() {
+        return usuarios;
+    }
+
+    public void setUsuarios(List<Usuario> usuarios) {
+        this.usuarios = usuarios;
     }
 
     @Override
